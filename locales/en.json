@@ -1,0 +1,30 @@
+{
+  "en": {
+    "hero.birthday": "Happy Birthday",
+    "hero.anniversary": "Happy Anniversary",
+    "hero.wedding": "Congratulations",
+    "hero.farewell": "Farewell",
+    "hero.congrats": "Congratulations",
+    "hero.friendship": "Friendship Day Special",
+    "hero.custom": "Special Occasion",
+    "cta.begin": "Tap to Begin",
+    "wishes.title": "Wishes",
+    "wishes.placeholder": "Leave a wish...",
+    "wishes.name": "Your name",
+    "wishes.send": "Send Wish",
+    "countdown.days": "Days",
+    "countdown.hours": "Hours",
+    "countdown.minutes": "Minutes",
+    "countdown.seconds": "Seconds",
+    "countdown.title": "Unlocks in",
+    "password.title": "Enter Password",
+    "password.placeholder": "Password",
+    "password.submit": "Unlock",
+    "password.error": "Wrong password. Try again.",
+    "share.copy": "Copy Link",
+    "share.whatsapp": "Share on WhatsApp",
+    "share.qr": "Download QR",
+    "finale.replay": "Replay",
+    "finale.share": "Share"
+  }
+}
