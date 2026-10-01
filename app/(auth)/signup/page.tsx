@@ -1,9 +1,15 @@
-export default function SignupPage() {
-  // TODO (teammate B): signup form -> POST /api/v1/auth/signup
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import AuthForm from "@/components/auth/AuthForm";
+import { getUser } from "@/lib/auth";
+
+export const metadata = { title: "Sign up · Wishly" };
+
+export default async function SignupPage() {
+  if (await getUser()) redirect("/dashboard");
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: 400, margin: "0 auto", paddingTop: "10vh" }}>
-      <h1>Sign Up</h1>
-      <p>Signup form goes here. (teammate B builds this)</p>
-    </div>
+    <Suspense>
+      <AuthForm mode="signup" />
+    </Suspense>
   );
 }
