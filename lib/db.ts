@@ -49,6 +49,23 @@ export async function resolveMongoUri(): Promise<string> {
   return g.__localMongo;
 }
 
+// Turn raw driver errors into a clear, secret-free message (shown by the API + /api/v1/health)
+function explain(err: any): Error {
+  if (err?.status) return err;
+  const msg = String(err?.message || err);
+  const hint = /bad auth|authentication failed/i.test(msg)
+    ? "MongoDB login failed — check the username/password in MONGO_URI (URL-encode special characters like @ : / ? #)."
+    : /ENOTFOUND|querySrv|getaddrinfo|EBADNAME/i.test(msg)
+      ? "MongoDB host not found — check the cluster address in MONGO_URI."
+      : /Invalid scheme|Invalid connection string|URI must|mongodb\+srv URI/i.test(msg)
+        ? "MONGO_URI looks malformed — it must start with mongodb+srv:// (or mongodb://)."
+        : /timed out|ECONNREFUSED|ETIMEDOUT|Server selection|whitelist|not authorized/i.test(msg)
+          ? "Can't reach MongoDB — in Atlas → Network Access add 0.0.0.0/0, then redeploy."
+          : `Can't connect to MongoDB: ${msg.replace(/\/\/[^@/]*@/, "//***@").slice(0, 160)}`;
+  console.error("[db]", msg);
+  return Object.assign(new Error(hint), { code: "DB_CONNECTION_FAILED", status: 503 });
+}
+
 export async function connectDB() {
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
@@ -56,7 +73,7 @@ export async function connectDB() {
       .then((uri) => mongoose.connect(uri, { bufferCommands: false, serverSelectionTimeoutMS: 10_000 }))
       .catch((err) => {
         cached.promise = null;
-        throw err;
+        throw explain(err);
       });
   }
   cached.conn = await cached.promise;

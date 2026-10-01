@@ -34,7 +34,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
     setServerError("");
     const res = await fetch(`/api/v1/auth/${isSignup ? "signup" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
     const json = await res.json().catch(() => null);
-    if (!json?.success) return setServerError(json?.error?.message || "Something went wrong");
+    if (!json?.success) return setServerError(json?.error?.message || `Server error (${res.status}) — open /api/v1/health to see what's wrong`);
     router.replace(next.startsWith("/") ? next : "/dashboard");
     router.refresh();
   };

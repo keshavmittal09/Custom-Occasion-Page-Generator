@@ -19,6 +19,6 @@ export async function GET() {
       time: new Date().toISOString(),
     });
   } catch (err: any) {
-    return errorResponse("DB_UNAVAILABLE", err?.code === "DB_NOT_CONFIGURED" ? err.message : "Can't reach the database — check MONGO_URI and Atlas network access", 503);
+    return errorResponse(err?.code || "DB_UNAVAILABLE", err?.status ? err.message : "Can't reach the database — check MONGO_URI and Atlas network access", 503);
   }
 }
