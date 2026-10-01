@@ -3,19 +3,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart, Menu, X } from "lucide-react";
+import { Heart, LogOut, Menu, Shield, X } from "lucide-react";
+import { useSession } from "./useSession";
 
 const LINKS = [
   ["How it works", "/#how"],
   ["Templates", "/templates"],
   ["Live demo", "/w/demo"],
-  ["My pages", "/dashboard"],
 ] as const;
 
-// Floating glass pill nav (Wishly)
+// Floating glass pill nav — auth aware
 export default function Navbar() {
   const path = usePathname();
+  const { user, logout } = useSession();
   const [open, setOpen] = useState(false);
+  const links = user ? [...LINKS, ["My pages", "/dashboard"] as const, ...(user.role === "ADMIN" ? [["Admin", "/admin"] as const] : [])] : LINKS;
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 px-4">
@@ -27,8 +29,8 @@ export default function Navbar() {
           </motion.span>
         </Link>
 
-        <div className="hidden items-center gap-8 text-sm md:flex">
-          {LINKS.map(([label, href]) => (
+        <div className="hidden items-center gap-7 text-sm md:flex">
+          {links.map(([label, href]) => (
             <Link key={href} href={href} className={`relative transition ${path === href ? "text-ink" : "text-ink/60 hover:text-ink"}`}>
               {label}
               {path === href && <motion.span layoutId="nav-dot" className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-blush" />}
@@ -37,6 +39,17 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-1">
+          {user === null && (
+            <Link href="/login" className="hidden px-4 py-2 text-sm text-ink/70 hover:text-ink md:inline-block">
+              Log in
+            </Link>
+          )}
+          {user && (
+            <button onClick={logout} className="hidden items-center gap-1.5 px-3 py-2 text-sm text-ink/60 hover:text-ink md:inline-flex" title={user.email}>
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-lilac to-blush text-xs font-semibold text-white">{user.name[0]?.toUpperCase()}</span>
+              <LogOut size={15} />
+            </button>
+          )}
           <Link href="/create" className="btn-ink hidden px-5 py-2.5 text-sm md:inline-block">
             Create a surprise
           </Link>
@@ -50,14 +63,14 @@ export default function Navbar() {
         {open && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="glass mx-auto mt-2 max-w-6xl rounded-3xl p-5 md:hidden">
             <div className="flex flex-col gap-4 text-ink">
-              {LINKS.map(([label, href]) => (
-                <Link key={href} href={href} onClick={() => setOpen(false)}>
-                  {label}
+              {links.map(([label, href]) => (
+                <Link key={href} href={href} onClick={() => setOpen(false)} className="flex items-center gap-2">
+                  {href === "/admin" && <Shield size={15} />} {label}
                 </Link>
               ))}
-              <Link href="/create" className="btn-ink py-3 text-center">
-                Create a surprise
-              </Link>
+              {user === null && <Link href="/login" onClick={() => setOpen(false)}>Log in</Link>}
+              {user && <button onClick={logout} className="text-left text-ink/70">Log out ({user.email})</button>}
+              <Link href="/create" className="btn-ink py-3 text-center">Create a surprise</Link>
             </div>
           </motion.div>
         )}
