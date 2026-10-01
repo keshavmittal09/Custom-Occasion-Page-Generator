@@ -107,13 +107,13 @@ export default function Gallery({ page, theme, variant }: SectionProps) {
       <AnimatePresence>
         {active !== null && (
           <motion.div data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActive(null)} className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4 backdrop-blur" style={{ textTransform: "none" }}>
-            <motion.div key={active} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative max-h-[80vh] max-w-full" onClick={(e) => e.stopPropagation()}>
+            <motion.div key={active} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} drag={n > 1 ? "x" : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.6} onDragEnd={(_, info) => { if (info.offset.x < -80) go(1); else if (info.offset.x > 80) go(-1); }} className="relative max-h-[80vh] max-w-full touch-pan-y" onClick={(e) => e.stopPropagation()}>
               <img src={optimized(images[active].url, 1600)} alt="" className="max-h-[80vh] max-w-full rounded-xl object-contain shadow-2xl" />
               <MemeText top={images[active].memeTop} bottom={images[active].memeBottom} big />
             </motion.div>
             <div className="mt-4 text-center text-white">
               {images[active].caption && <p className="text-lg">{images[active].caption}</p>}
-              <p className="text-sm text-white/50">{active + 1} / {n}</p>
+              <p className="text-sm text-white/50">{active + 1} / {n}{n > 1 ? " · swipe" : ""}</p>
             </div>
             <button aria-label="Close" onClick={() => setActive(null)} className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-xl text-white hover:bg-white/20">✕</button>
             {n > 1 && (
