@@ -11,6 +11,8 @@ import Timeline from "@/sections/Timeline";
 import WishesWall from "@/sections/WishesWall";
 import Finale from "@/sections/Finale";
 import ShareKit from "@/components/ui/ShareKit";
+import ScrollProgress from "@/sections/ScrollProgress";
+import Divider from "@/sections/Divider";
 
 // Royal Gold — black velvet, falling gold petals, framed borders
 function Petals({ gold }: { gold: string }) {
@@ -36,11 +38,13 @@ function Petals({ gold }: { gold: string }) {
 
 export default function RoyalGold({ page, theme }: TemplateProps) {
   const props = { page, theme, variant: "royal" as const };
+  const DIVIDER = theme.secondary;
   return (
     <div
       className="relative min-h-screen overflow-x-hidden"
       style={{ background: `radial-gradient(ellipse at top, #2a2210, ${theme.background} 60%)`, color: theme.text, fontFamily: fontStack(theme) }}
     >
+      <ScrollProgress color={theme.secondary} color2="#fff3c4" />
       <Petals gold={theme.secondary} />
       <Intro {...props} />
       <main className="relative">
