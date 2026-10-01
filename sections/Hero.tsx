@@ -22,7 +22,7 @@ export default function Hero({ page, theme, variant }: SectionProps) {
   const rotY = useSpring(useTransform(tx, [-1, 1], [-10, 10]), { stiffness: 80, damping: 14 });
 
   useEffect(() => {
-    if (mode === "pane") return;
+    if (mode === "pane" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const onMove = (e: PointerEvent) => {
       tx.set((e.clientX / window.innerWidth) * 2 - 1);
       ty.set((e.clientY / window.innerHeight) * 2 - 1);
