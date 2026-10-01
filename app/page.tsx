@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, MotionConfig, useMotionValue, useSpring, useTransform, useMotionTemplate, useInView, animate } from "framer-motion";
-import { ArrowRight, Heart, Sparkles, Image as ImageIcon, Palette, Share2, Gift, Cake, Plane, Link2, Play, Check, Lock, MessageCircle, Languages, Music } from "lucide-react";
+import { ArrowRight, Heart, Sparkles, Image as ImageIcon, Palette, Share2, Gift, Cake, Plane, Link2, Play, Check, Lock, MessageCircle, Languages, Music, Star, ChevronDown, Laugh } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
+import { CATALOG } from "@/templates/catalog";
 
 const steps = [
   { title: "Choose an occasion", text: "Birthday, anniversary, farewell, or a moment only you two get.", icon: Gift, tint: "from-[#ffd9c2] to-[#ffc4d6]", pos: "left-0 top-4" },
@@ -13,12 +14,8 @@ const steps = [
   { title: "Share one link", text: "Send it on WhatsApp or as a QR. They tap, it plays.", icon: Share2, tint: "from-[#c9f1e3] to-[#cfe3ff]", pos: "bottom-10 left-2" },
 ];
 
-// Our three real templates, each with a live demo page
-const templates = [
-  { slug: "demo", name: "Neon Night", note: "Starfield, glow and party energy", gradient: "from-[#1b1250] via-[#4a2fb0] to-[#e85fa8]", dark: true, emoji: "🎁" },
-  { slug: "demo-pastel", name: "Pastel Dream", note: "Balloons, polaroids and soft pinks", gradient: "from-[#fde2f0] via-[#e8dcff] to-[#cfe3ff]", dark: false, emoji: "🎀" },
-  { slug: "demo-royal", name: "Royal Gold", note: "Black velvet, gold petals, serif", gradient: "from-[#1a140a] via-[#5a4318] to-[#e8c27a]", dark: true, emoji: "👑" },
-];
+// All templates, each with a live sample-data demo
+const templates = CATALOG.map((t) => ({ slug: t.demo, name: t.name, note: t.note, gradient: t.gradient, dark: t.dark, emoji: t.emoji, vibe: t.vibe }));
 
 const photos = ["riya1", "riya2", "riya3", "riya4"].map((s) => `https://picsum.photos/seed/${s}/300/300`);
 const occasions = ["Birthdays", "Anniversaries", "Weddings", "Farewells", "Congrats", "Friendship days", "Thank-yous", "Just because"];
@@ -70,7 +67,7 @@ function PhoneScreen({ active }: { active: number }) {
             <h3 className="font-display text-2xl">Pick your style</h3>
             <p className="mt-2 text-xs text-muted">Set the mood.</p>
             <div className="mt-5 w-full space-y-3">
-              {templates.map((t, i) => (
+              {templates.slice(0, 4).map((t, i) => (
                 <motion.div key={t.name} initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.12 }} className={`flex items-center justify-between rounded-2xl bg-gradient-to-r ${t.gradient} p-4 text-sm font-medium shadow-sm ${t.dark ? "text-white" : ""}`}>
                   <span>{t.name}</span>
                   {i === 1 && <Check size={16} />}
@@ -101,7 +98,7 @@ function PhoneScreen({ active }: { active: number }) {
 export default function Home() {
   const router = useRouter();
   const [active, setActive] = useState(0);
-  const [theme, setTheme] = useState(1);
+  const [theme, setTheme] = useState(0);
   const [dust, setDust] = useState<{ x: number; y: number; s: number; d: number; t: number; c: string }[]>([]);
   const [burst, setBurst] = useState<{ id: number; dx: number; dy: number; r: number; c: string; s: number }[]>([]);
 
@@ -277,16 +274,16 @@ export default function Home() {
           <div className="relative mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <h2 className="font-display text-4xl sm:text-6xl">Templates with a point of view</h2>
-              <p className="mt-4 max-w-md text-muted">Tap a style and watch the page change. Each one has its own colours, mood and motion.</p>
-              <div className="mt-8 space-y-3">
+              <p className="mt-4 max-w-md text-muted">From Y2K chrome to a Windows 98 desktop, a group chat or a film reel. Tap one, then open the live demo.</p>
+              <div className="mt-8 grid max-h-[420px] grid-cols-2 gap-2 overflow-y-auto pr-1">
                 {templates.map((t, i) => (
-                  <button key={t.name} onClick={() => setTheme(i)} className={`flex w-full items-center gap-4 rounded-2xl p-4 text-left transition ${theme === i ? "glass" : "hover:bg-white/50"}`}>
-                    <span className={`h-12 w-12 rounded-xl bg-gradient-to-br shadow-inner ${t.gradient}`} />
-                    <span>
-                      <span className="block font-semibold">{t.name}</span>
-                      <span className="text-sm text-muted">{t.note}</span>
+                  <button key={t.name} onClick={() => setTheme(i)} className={`flex items-center gap-3 rounded-2xl p-2.5 text-left transition ${theme === i ? "glass" : "hover:bg-white/50"}`}>
+                    <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-lg shadow-inner ${t.gradient}`}>{t.emoji}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{t.name}</span>
+                      <span className="block text-xs text-muted">{t.vibe}</span>
                     </span>
-                    {theme === i && <motion.span layoutId="tick" className="ml-auto rounded-full bg-ink p-1 text-white"><Check size={14} /></motion.span>}
+                    {theme === i && <motion.span layoutId="tick" className="ml-auto shrink-0 rounded-full bg-ink p-1 text-white"><Check size={12} /></motion.span>}
                   </button>
                 ))}
               </div>
@@ -347,7 +344,7 @@ export default function Home() {
         <section className="px-5 sm:px-8">
           <div className="mx-auto max-w-7xl rounded-[40px] bg-ink px-8 py-16 text-white">
             <div className="grid gap-10 text-center sm:grid-cols-3">
-              {[[2, " min", "to build a page"], [3, "", "hand-made templates"], [3, "", "languages supported"]].map(([n, s, l]) => (
+              {[[2, " min", "to build a page"], [CATALOG.length, "", "hand-made templates"], [3, "", "languages supported"]].map(([n, s, l]) => (
                 <div key={String(l)}>
                   <div className="font-display bg-gradient-to-r from-[#d9d2ff] via-[#ffc4d6] to-[#ffd9c2] bg-clip-text text-7xl text-transparent">
                     <Counter to={n as number} suffix={s as string} />
@@ -359,9 +356,9 @@ export default function Home() {
             <div className="mt-14 grid gap-4 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 [Lock, "Surprise locks", "Timed reveal with a countdown, or a password."],
-                [MessageCircle, "Wishes wall", "Friends leave their own notes on the page."],
+                [Laugh, "GIFs & memes", "Drop in GIFs and turn any photo into a meme."],
                 [Languages, "Their language", "English, Hinglish or हिंदी."],
-                [Music, "A soundtrack", "Music starts the moment they tap open."],
+                [Music, "A soundtrack", "Pick from the music library or upload your song."],
               ].map(([Icon, t, d]) => {
                 const I = Icon as typeof Lock;
                 return (
@@ -372,6 +369,53 @@ export default function Home() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+
+        {/* TESTIMONIALS (sample) */}
+        <section className="px-5 py-24 sm:px-8">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display max-w-xl text-4xl sm:text-5xl">Said with a lot of happy tears</h2>
+            <p className="mt-2 text-sm text-muted">Sample testimonials</p>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {[
+                ["She opened it on the train and cried laughing. Best gift I've made.", "Aarav", "from-[#ffd9c2] to-[#ffc4d6]"],
+                ["The group-chat template had the whole squad screaming 😭", "Meera", "from-[#cfe3ff] to-[#d9d2ff]"],
+                ["Mom & Dad watched their anniversary page five times in one night.", "Kabir", "from-[#c9f1e3] to-[#cfe3ff]"],
+              ].map(([q, n, c], i) => (
+                <motion.figure key={n} initial={{ opacity: 0, y: 40 + i * 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15, duration: 0.8 }} whileHover={{ y: -6 }} className="glass rounded-[28px] p-8">
+                  <div className="flex gap-0.5">{Array.from({ length: 5 }).map((_, s) => <Star key={s} size={14} fill="#f3c969" stroke="none" />)}</div>
+                  <blockquote className="font-display mt-5 text-2xl leading-snug">&ldquo;{q}&rdquo;</blockquote>
+                  <figcaption className="mt-6 flex items-center gap-3 text-sm"><span className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br font-semibold ${c}`}>{n[0]}</span>{n}</figcaption>
+                </motion.figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="px-5 pb-24 sm:px-8">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="font-display text-center text-4xl sm:text-5xl">Questions, answered</h2>
+            <div className="mt-10 space-y-3">
+              {[
+                ["Is it free?", "Yes. Create an account and make as many pages as you like."],
+                ["Will it work on their phone?", "Pages are built mobile-first. Most people open them from WhatsApp on a phone, so that's what we design for."],
+                ["Can I keep it a secret until the day?", "Set a reveal time and the link shows a live countdown until then. The content isn't sent to the browser before it unlocks."],
+                ["Can I add music, GIFs and videos?", "Pick a track from the music library or upload your own, add GIFs or meme captions, and up to two short videos."],
+                ["Which languages are supported?", "English, Hinglish and हिंदी. Every heading and button on the page switches."],
+                ["Can I edit after sharing?", "Yes. Edits go live on the same link, and you can unpublish or delete any time."],
+              ].map(([q, a]) => (
+                <details key={q} className="glass group rounded-2xl px-5 py-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
+                    {q}
+                    <ChevronDown size={18} className="shrink-0 transition group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">{a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
