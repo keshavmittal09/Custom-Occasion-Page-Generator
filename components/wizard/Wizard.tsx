@@ -55,6 +55,15 @@ export default function Wizard({ pageId, initialStep = 0 }: { pageId?: string; i
     go(step + 1);
   };
 
+  // Warn before closing the tab while a save is still in flight
+  useEffect(() => {
+    const onLeave = (e: BeforeUnloadEvent) => {
+      if (saveState === "saving") e.preventDefault();
+    };
+    window.addEventListener("beforeunload", onLeave);
+    return () => window.removeEventListener("beforeunload", onLeave);
+  }, [saveState]);
+
   // Ctrl/Cmd + Enter moves forward (keyboard friendly)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
