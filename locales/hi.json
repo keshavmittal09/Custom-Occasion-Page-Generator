@@ -1,0 +1,30 @@
+{
+  "en": {
+    "hero.birthday": "जन्मदिन मुबारक",
+    "hero.anniversary": "सालगिरह मुबारक",
+    "hero.wedding": "बधाई हो",
+    "hero.farewell": "विदाई",
+    "hero.congrats": "बधाई हो",
+    "hero.friendship": "मित्रता दिवस",
+    "hero.custom": "खास दिन",
+    "cta.begin": "शुरू करें",
+    "wishes.title": "शुभकामनाएँ",
+    "wishes.placeholder": "कुछ लिखें...",
+    "wishes.name": "आपका नाम",
+    "wishes.send": "भेजें",
+    "countdown.days": "दिन",
+    "countdown.hours": "घंटे",
+    "countdown.minutes": "मिनट",
+    "countdown.seconds": "सेकंड",
+    "countdown.title": "इतने समय में खुलेगा",
+    "password.title": "पासवर्ड डालें",
+    "password.placeholder": "पासवर्ड",
+    "password.submit": "खोलें",
+    "password.error": "गलत पासवर्ड। दोबारा कोशिश करें।",
+    "share.copy": "लिंक कॉपी करें",
+    "share.whatsapp": "WhatsApp पर शेयर करें",
+    "share.qr": "QR डाउनलोड करें",
+    "finale.replay": "फिर से",
+    "finale.share": "शेयर करें"
+  }
+}

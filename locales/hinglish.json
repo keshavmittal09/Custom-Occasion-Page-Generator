@@ -1,0 +1,30 @@
+{
+  "en": {
+    "hero.birthday": "Happy Birthday",
+    "hero.anniversary": "Happy Anniversary",
+    "hero.wedding": "Congratulations",
+    "hero.farewell": "Farewell",
+    "hero.congrats": "Badhaai Ho",
+    "hero.friendship": "Dosti Zindabad",
+    "hero.custom": "Khaas Din",
+    "cta.begin": "Shuru Karen",
+    "wishes.title": "Wishes",
+    "wishes.placeholder": "Kuch likho yaar...",
+    "wishes.name": "Tera naam",
+    "wishes.send": "Bhejo",
+    "countdown.days": "Din",
+    "countdown.hours": "Ghante",
+    "countdown.minutes": "Minute",
+    "countdown.seconds": "Second",
+    "countdown.title": "Itne mein unlock hoga",
+    "password.title": "Password daalo",
+    "password.placeholder": "Password",
+    "password.submit": "Kholo",
+    "password.error": "Galat password. Dobara try karo.",
+    "share.copy": "Link Copy Karo",
+    "share.whatsapp": "WhatsApp pe bhejo",
+    "share.qr": "QR Download Karo",
+    "finale.replay": "Phir Se",
+    "finale.share": "Share Karo"
+  }
+}
