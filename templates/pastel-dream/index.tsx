@@ -11,6 +11,9 @@ import Timeline from "@/sections/Timeline";
 import WishesWall from "@/sections/WishesWall";
 import Finale from "@/sections/Finale";
 import ShareKit from "@/components/ui/ShareKit";
+import Sparkles from "@/sections/Sparkles";
+import ScrollProgress from "@/sections/ScrollProgress";
+import Divider from "@/sections/Divider";
 
 // Pastel Dream — soft gradients with balloons floating up the page
 const BALLOON_COLORS = ["#FBCFE8", "#C4B5FD", "#A5F3FC", "#FDE68A", "#FECACA"];
@@ -40,12 +43,15 @@ function Balloons() {
 
 export default function PastelDream({ page, theme }: TemplateProps) {
   const props = { page, theme, variant: "pastel" as const };
+  const DIVIDER = "#F9A8D4";
   return (
     <div
       className="relative min-h-screen overflow-x-hidden"
       style={{ background: `linear-gradient(180deg, ${theme.background}, #F5F3FF 50%, #FDF2F8)`, color: theme.text, fontFamily: fontStack(theme) }}
     >
+      <ScrollProgress color="#F472B6" color2="#A78BFA" />
       <Balloons />
+      <Sparkles />
       <Intro {...props} />
       <main className="relative">
         <Hero {...props} />
