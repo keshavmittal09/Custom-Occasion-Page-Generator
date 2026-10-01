@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getMyPages, removeMyPage, MyPage } from "@/lib/myPages";
 import ShareKit from "@/components/ui/ShareKit";
+import Navbar from "@/components/ui/Navbar";
 
 const TEMPLATE_BG: Record<string, string> = {
   "neon-night": "linear-gradient(135deg,#0B0420,#3b0764 60%,#FF4FA3)",
@@ -53,6 +54,22 @@ export default function DashboardPage() {
           </Link>
         </div>
 
+        {pages.length > 0 && (
+          <div className="mb-8 grid grid-cols-3 gap-3">
+            {[
+              ["🎁", pages.length, "pages"],
+              ["👀", Object.values(stats).reduce((a, s) => a + s.views, 0), "total views"],
+              ["💬", Object.values(stats).reduce((a, s) => a + s.wishes, 0), "wishes received"],
+            ].map(([icon, n, label]) => (
+              <div key={label as string} className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-5">
+                <div className="text-2xl">{icon}</div>
+                <div className="mt-2 text-3xl font-bold">{n}</div>
+                <div className="text-sm text-white/50">{label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {pages.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-white/15 p-16 text-center">
             <div className="text-5xl">🎈</div>
@@ -67,7 +84,7 @@ export default function DashboardPage() {
             {pages.map((p) => {
               const s = stats[p.slug];
               return (
-                <div key={p.slug} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                <div key={p.slug} className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-pink-400/40 hover:shadow-2xl hover:shadow-pink-500/10">
                   <div className="flex h-28 items-end p-4" style={{ background: TEMPLATE_BG[p.templateId] ?? TEMPLATE_BG["neon-night"] }}>
                     <span className="rounded-full bg-black/50 px-3 py-1 text-xs">{s?.status ?? "…"}</span>
                   </div>
