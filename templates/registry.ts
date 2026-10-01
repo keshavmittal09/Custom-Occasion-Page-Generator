@@ -1,7 +1,6 @@
+import React from "react";
 import dynamic from "next/dynamic";
 import { PageData, TemplateId } from "@/lib/schema";
-
-export type TemplateProps = { page: PageData; theme: ThemeTokens };
 
 export type ThemeTokens = {
   primary: string;
@@ -13,6 +12,8 @@ export type ThemeTokens = {
   easing: string;
   decorations: string[];
 };
+
+export type TemplateProps = { page: PageData; theme: ThemeTokens };
 
 const THEME_DEFAULTS: Record<TemplateId, ThemeTokens> = {
   "neon-night": {
@@ -47,25 +48,23 @@ const THEME_DEFAULTS: Record<TemplateId, ThemeTokens> = {
   },
 };
 
-// Dynamically import templates (code-splits each one)
+// Dynamically imported — each template is code-split
 const templateComponents: Record<TemplateId, React.ComponentType<TemplateProps>> = {
-  "neon-night": dynamic(() => import("@/templates/neon-night"), { ssr: false }) as any,
-  "pastel-dream": dynamic(() => import("@/templates/pastel-dream"), { ssr: false }) as any,
-  "royal-gold": dynamic(() => import("@/templates/royal-gold"), { ssr: false }) as any,
+  "neon-night": dynamic(() => import("@/templates/neon-night/index"), { ssr: false }) as any,
+  "pastel-dream": dynamic(() => import("@/templates/pastel-dream/index"), { ssr: false }) as any,
+  "royal-gold": dynamic(() => import("@/templates/royal-gold/index"), { ssr: false }) as any,
 };
 
-export function getTemplate(templateId: TemplateId) {
-  return templateComponents[templateId];
+export function getTemplate(templateId: TemplateId): React.ComponentType<TemplateProps> {
+  return templateComponents[templateId] ?? templateComponents["neon-night"];
 }
 
 export function getTheme(page: PageData): ThemeTokens {
-  const base = THEME_DEFAULTS[page.theme.templateId] || THEME_DEFAULTS["neon-night"];
+  const base = THEME_DEFAULTS[page.theme.templateId] ?? THEME_DEFAULTS["neon-night"];
   return {
     ...base,
     ...(page.theme.accent && { accent: page.theme.accent }),
     ...(page.theme.font && { font: page.theme.font }),
-    decorations: page.theme.decorations || base.decorations,
+    decorations: page.theme.decorations?.length ? page.theme.decorations : base.decorations,
   };
 }
-
-import React from "react";
