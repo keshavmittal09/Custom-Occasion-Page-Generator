@@ -1,64 +1,46 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-import { connectDB } from "@/lib/db";
-import { Page } from "@/models/Page";
-import { Wish } from "@/models/Wish";
-import { successResponse, errorResponse, withErrorHandler, rateLimit, getClientIp } from "@/lib/api";
-import { sanitize } from "@/lib/sanitize";
-import crypto from "crypto";
-import { z } from "zod";
+import { getPage, incrementViews } from "@/lib/store";
+import { successResponse, errorResponse, withErrorHandler } from "@/lib/api";
 
 type Ctx = { params: Promise<{ slug: string }> };
 
 // GET /api/v1/public/pages/:slug
 export const GET = withErrorHandler(async (req: NextRequest, ctx: Ctx) => {
   const { slug } = await ctx.params;
-  await connectDB();
 
-  // Handle demo fixture
+  // Demo fixture — works without any database
   if (slug === "demo") {
     const { riyaFixture } = await import("@/lib/fixtures/riya");
-    return successResponse({ page: riyaFixture, locked: false });
+    return successResponse({ page: { ...riyaFixture, slug: "demo" }, locked: false });
   }
 
-  const page = await Page.findOne({ slug }).lean() as any;
+  const page = (await getPage(slug)) as any;
   if (!page) return errorResponse("NOT_FOUND", "Page not found", 404);
   if (page.status === "DISABLED") return errorResponse("DISABLED", "This page is unavailable", 403);
-  if (!["PUBLISHED", "SCHEDULED"].includes(page.status)) return errorResponse("NOT_FOUND", "Page not found", 404);
 
-  // Check revealAt lock
-  const now = new Date();
-  if (page.revealAt && new Date(page.revealAt) > now) {
-    return successResponse({ locked: true, revealAt: page.revealAt });
+  // Scheduled reveal lock
+  if (page.revealAt && new Date(page.revealAt) > new Date()) {
+    return successResponse({ locked: true, revealAt: page.revealAt, recipientName: page.recipient?.name });
   }
 
-  // Check password
-  const passwordHeader = req.headers.get("x-page-password");
+  // Password lock
   if (page.settings?.passwordHash) {
-    if (!passwordHeader) return successResponse({ locked: true, passwordRequired: true });
-    const valid = await bcrypt.compare(passwordHeader, page.settings.passwordHash);
+    const pw = req.headers.get("x-page-password");
+    if (!pw) return successResponse({ locked: true, passwordRequired: true });
+    const valid = await bcrypt.compare(pw, page.settings.passwordHash);
     if (!valid) return errorResponse("WRONG_PASSWORD", "Incorrect password", 401);
   }
 
-  // Increment views
-  const ip = getClientIp(req);
-  const ipHash = crypto.createHash("sha256").update(ip).digest("hex");
-  await Page.findByIdAndUpdate(page._id, { $inc: { "stats.views": 1 } });
+  // ?peek=1 is used by the dashboard to read stats without counting a view
+  if (!req.nextUrl.searchParams.has("peek")) await incrementViews(slug);
 
-  // Sanitize user text before sending
+  // Never leak the password hash or internal ids
+  const { settings, _id, __v, ownerId, ...rest } = page;
   const safePage = {
-    ...page,
-    recipient: {
-      ...page.recipient,
-      name: sanitize(page.recipient?.name || ""),
-      nickname: page.recipient?.nickname ? sanitize(page.recipient.nickname) : undefined,
-    },
-    from: sanitize(page.from || ""),
-    messages: (page.messages || []).map(sanitize),
+    ...rest,
+    settings: { wishesWall: settings?.wishesWall ?? true, showViews: settings?.showViews ?? true },
   };
 
   return successResponse({ page: safePage, locked: false });
 });
-
-// GET /api/v1/public/pages/:slug/wishes
-export async function fetchWishes() {}
