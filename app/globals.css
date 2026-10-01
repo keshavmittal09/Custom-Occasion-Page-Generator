@@ -1,33 +1,42 @@
 @import "tailwindcss";
 
+/* Wishly design system: soft cream canvas, deep ink, lilac → blush → peach accents */
 :root {
-  --background: #0b0420;
-  --foreground: #f8fafc;
+  --background: #f8f7fc;
+  --foreground: #1e1b3a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-cream: #f8f7fc;
+  --color-ink: #1e1b3a;
+  --color-muted: #6b6884;
+  --color-lilac: #8b7cf6;
+  --color-blush: #f59ec0;
+  --color-peach: #ffb48a;
+  --color-sage: #b9e6d2;
+  --font-sans: "Plus Jakarta Sans", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
   --font-mono: var(--font-geist-mono);
 }
 
 html {
   scroll-behavior: smooth;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: #ff4fa3;
-  color: #fff;
+  background: #f59ec0;
+  color: #1e1b3a;
 }
 
 ::-webkit-scrollbar {
@@ -38,13 +47,95 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(30, 27, 58, 0.15);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
-/* Shared motion utilities */
+/* Editorial serif used for every headline */
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+  letter-spacing: -0.03em;
+  font-weight: 300;
+}
+
+/* Glass card + buttons shared across pages */
+.glass {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 60px -28px rgba(70, 50, 140, 0.35), 0 0 0 1px rgba(30, 27, 58, 0.05);
+}
+
+.btn-ink {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #1e1b3a;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 14px 30px -10px rgba(30, 27, 58, 0.55);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-ink:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -10px rgba(30, 27, 58, 0.6);
+}
+.btn-ink::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -60%;
+  width: 40%;
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.7s;
+}
+.btn-ink:hover::after {
+  left: 140%;
+}
+
+.btn-ghost {
+  border-radius: 999px;
+  border: 1px solid rgba(30, 27, 58, 0.15);
+  background: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s;
+}
+.btn-ghost:hover {
+  background: #fff;
+}
+
+/* Animated lilac → blush → peach text */
+.text-shine {
+  background-image: linear-gradient(100deg, #8b7cf6, #f59ec0, #ffb48a, #8b7cf6);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 8s linear infinite;
+}
+@keyframes shine {
+  to { background-position: 220% center; }
+}
+
+.marquee {
+  animation: marquee 60s linear infinite;
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+.bg-aurora {
+  background: radial-gradient(60% 50% at 15% 10%, #ffe1d0 0%, transparent 70%),
+    radial-gradient(50% 50% at 85% 5%, #dcd3ff 0%, transparent 70%),
+    radial-gradient(50% 50% at 60% 100%, #cdeee0 0%, transparent 70%);
+}
+
+/* Template-side utilities (kept from the dark templates) */
 @keyframes gradient-x {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -53,7 +144,6 @@ body {
   background-size: 200% 200%;
   animation: gradient-x 6s ease infinite;
 }
-
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-14px); }
@@ -61,18 +151,12 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.animate-shimmer {
-  background-size: 200% 100%;
-  animation: shimmer 3s linear infinite;
-}
-
 .bg-grid {
   background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee, .text-shine, .animate-float, .animate-gradient { animation: none; }
 }
