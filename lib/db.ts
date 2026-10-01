@@ -4,12 +4,14 @@ import mongoose from "mongoose";
 
 // MongoDB connection.
 // - MONGO_URI set   → connect to it (Atlas in production).
-// - local, no URI   → reuse/start a persistent local MongoDB (mongodb-memory-server, data in .data/mongo)
+// - local, no URI   → use a MongoDB already running locally, else start a persistent one
+//                     (mongodb-memory-server, data in .data/mongo)
 //                     so `npm run dev` works on a fresh machine with zero setup.
 // - Vercel, no URI  → fail loudly instead of silently losing data.
 
 const LOCAL_PORT = 27027;
 const LOCAL_URI = `mongodb://127.0.0.1:${LOCAL_PORT}/wishly`;
+const SYSTEM_URI = "mongodb://127.0.0.1:27017/wishly"; // a MongoDB already installed on this machine
 
 type Cache = { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null; seeded: Promise<void> | null };
 const g = globalThis as any;
@@ -36,11 +38,11 @@ export async function resolveMongoUri(): Promise<string> {
     });
   }
   g.__localMongo ??= (async () => {
-    if (await canReach(LOCAL_URI)) return LOCAL_URI; // another process (dev server / seed) already runs it
+    for (const uri of [LOCAL_URI, SYSTEM_URI]) if (await canReach(uri)) return uri; // reuse a running local MongoDB
     const { MongoMemoryServer } = await import("mongodb-memory-server");
     const dbPath = path.join(process.cwd(), ".data", "mongo");
     fs.mkdirSync(dbPath, { recursive: true });
-    g.__mongod = await MongoMemoryServer.create({ instance: { port: LOCAL_PORT, dbPath, storageEngine: "wiredTiger" } });
+    g.__mongod = await MongoMemoryServer.create({ instance: { port: LOCAL_PORT, dbPath, storageEngine: "wiredTiger", launchTimeout: 60_000 } });
     console.log(`[db] No MONGO_URI — started local MongoDB at ${LOCAL_URI} (data in .data/mongo)`);
     return LOCAL_URI;
   })();
