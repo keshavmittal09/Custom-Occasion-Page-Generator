@@ -81,8 +81,11 @@ export default function PublicPage() {
   if (state === "loading") {
     return (
       <div className={shell}>
-        <div className="animate-bounce text-5xl">✨</div>
-        <p className="text-white/70">Loading your surprise…</p>
+        <div className="relative grid h-24 w-24 place-items-center">
+          <span className="absolute inset-0 animate-ping rounded-full bg-pink-500/30" />
+          <span className="text-5xl">🎁</span>
+        </div>
+        <p className="text-white/70">Wrapping your surprise…</p>
       </div>
     );
   }
@@ -133,5 +136,12 @@ export default function PublicPage() {
   }
 
   const Template = getTemplate(page.theme.templateId as TemplateId);
-  return <Template page={page} theme={getTheme(page)} />;
+  return (
+    <>
+      <Template page={page} theme={getTheme(page)} />
+      <a href="/create" className="fixed bottom-5 left-5 z-30 rounded-full bg-black/60 px-4 py-2.5 text-xs font-medium text-white ring-1 ring-white/20 backdrop-blur-md transition hover:bg-black/80">
+        ✨ Make your own
+      </a>
+    </>
+  );
 }
