@@ -1,15 +1,65 @@
 "use client";
+import { useMemo } from "react";
+import { motion } from "framer-motion";
 import { TemplateProps } from "@/templates/registry";
+import { fontStack } from "@/sections/types";
+import Intro from "@/sections/Intro";
+import Hero from "@/sections/Hero";
+import Message from "@/sections/Message";
+import Gallery from "@/sections/Gallery";
+import Timeline from "@/sections/Timeline";
+import WishesWall from "@/sections/WishesWall";
+import Finale from "@/sections/Finale";
+import ShareKit from "@/components/ui/ShareKit";
+
+// Pastel Dream — soft gradients with balloons floating up the page
+const BALLOON_COLORS = ["#FBCFE8", "#C4B5FD", "#A5F3FC", "#FDE68A", "#FECACA"];
+
+function Balloons() {
+  const balloons = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => ({ x: Math.random() * 95, d: 12 + Math.random() * 10, delay: Math.random() * 10, c: BALLOON_COLORS[i % BALLOON_COLORS.length], s: 30 + Math.random() * 30 })),
+    []
+  );
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+      {balloons.map((b, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          style={{ left: `${b.x}%`, bottom: -120 }}
+          animate={{ y: [0, -1400], x: [0, 20, -20, 0] }}
+          transition={{ repeat: Infinity, duration: b.d, delay: b.delay, ease: "linear" }}
+        >
+          <div style={{ width: b.s, height: b.s * 1.2, background: b.c, borderRadius: "50% 50% 50% 50% / 45% 45% 55% 55%", opacity: 0.8 }} />
+          <div className="mx-auto h-10 w-px bg-gray-400/50" />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 export default function PastelDream({ page, theme }: TemplateProps) {
+  const props = { page, theme, variant: "pastel" as const };
   return (
-    <div style={{ background: theme.background, color: theme.text, fontFamily: theme.font, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <h1 style={{ color: theme.accent, fontSize: "3rem", fontWeight: 700 }}>
-        Happy {page.occasion === "BIRTHDAY" ? "Birthday" : page.occasion}, {page.recipient.name}! 🌸
-      </h1>
-      <p style={{ marginTop: "1rem" }}>From: {page.from}</p>
-      <p style={{ marginTop: "2rem", maxWidth: 600, textAlign: "center", opacity: 0.8 }}>{page.messages[0]}</p>
-      <p style={{ marginTop: "3rem", opacity: 0.4, fontSize: "0.8rem" }}>[Pastel Dream Template — Motion dev D: build your sections here]</p>
+    <div
+      className="relative min-h-screen overflow-x-hidden"
+      style={{ background: `linear-gradient(180deg, ${theme.background}, #F5F3FF 50%, #FDF2F8)`, color: theme.text, fontFamily: fontStack(theme) }}
+    >
+      <Balloons />
+      <Intro {...props} />
+      <main className="relative">
+        <Hero {...props} />
+        <Message {...props} />
+        <Gallery {...props} />
+        <Timeline {...props} />
+        <WishesWall {...props} />
+        <Finale {...props} />
+        {page.slug && (
+          <footer className="pb-16">
+            <ShareKit url={`${window.location.origin}/w/${page.slug}`} dark={false} />
+          </footer>
+        )}
+      </main>
     </div>
   );
 }
