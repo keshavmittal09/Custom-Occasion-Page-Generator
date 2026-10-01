@@ -10,7 +10,7 @@ const MemorySchema = new Schema({
 }, { _id: false });
 
 const PageSchema = new Schema({
-  ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+  ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false, index: true },
   slug: { type: String, unique: true, sparse: true },
   status: { type: String, enum: ["DRAFT","SCHEDULED","PUBLISHED","UNPUBLISHED","DISABLED"], default: "DRAFT" },
   occasion: String,
