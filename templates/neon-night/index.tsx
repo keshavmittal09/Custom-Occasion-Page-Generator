@@ -11,6 +11,8 @@ import Timeline from "@/sections/Timeline";
 import WishesWall from "@/sections/WishesWall";
 import Finale from "@/sections/Finale";
 import ShareKit from "@/components/ui/ShareKit";
+import ScrollProgress from "@/sections/ScrollProgress";
+import Divider from "@/sections/Divider";
 
 // Neon Night — dark sky, twinkling stars, glowing accents
 function Stars({ color }: { color: string }) {
@@ -37,8 +39,11 @@ function Stars({ color }: { color: string }) {
 
 export default function NeonNight({ page, theme }: TemplateProps) {
   const props = { page, theme, variant: "neon" as const };
+  const DIVIDER = theme.accent;
   return (
     <div className="relative min-h-screen overflow-x-hidden" style={{ background: theme.background, color: theme.text, fontFamily: fontStack(theme) }}>
+      <ScrollProgress color={theme.accent} color2={theme.secondary} />
+      <div className="bg-grid pointer-events-none fixed inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
       <Stars color={theme.accent} />
       <Intro {...props} />
       <main className="relative">
