@@ -94,6 +94,14 @@ npm run dev                  # http://localhost:3000
 - `npm run seed` re-runs the seed against `MONGO_URI` (e.g. Atlas). It's safe to run more than once.
 - With no Cloudinary keys, uploads are stored in MongoDB (4 MB per file).
 
+**Creating a MongoDB URI (Atlas, free):**
+1. Sign up at mongodb.com/cloud/atlas → create an **M0 (free)** cluster.
+2. **Database Access** → add a user (letters/numbers-only password, or URL-encode special characters).
+3. **Network Access** → **Allow access from anywhere** (`0.0.0.0/0`) so Vercel can connect.
+4. **Connect → Drivers** → copy the string, put in your password and add the database name after `.net/`:
+   `mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/wishly?retryWrites=true&w=majority`
+5. Check it: open `/api/v1/health` — it should say `"db": "connected"`.
+
 **Deploying to Vercel:** set `MONGO_URI`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL` and the Cloudinary keys. `.npmrc` already sets `legacy-peer-deps` for React 19.
 
 ## API
@@ -104,6 +112,7 @@ Base `/api/v1`. Success: `{ success: true, data, message? }`. Error: `{ success:
 |---|---|---|---|
 | POST | `/auth/register` (`/auth/signup`), `/auth/login`, `/auth/logout` | Public / Auth | Account management |
 | GET | `/auth/me` | Auth | Current user |
+| GET | `/health` | Public | Uptime + database connectivity check |
 | GET | `/templates` | Public | Template list (id, name, preview, occasions) |
 | POST | `/pages` | Creator | Create draft |
 | GET / PATCH / DELETE | `/pages/:id` | Owner (DELETE: owner or admin) | Load, autosave, delete (+ media, wishes, views) |
