@@ -1,70 +1,74 @@
-# Custom Occasion Page Generator
+# Wishly · Custom Occasion Page Generator
 
-A Next.js application where creators fill a 6-step wizard to generate beautiful, animated occasion pages (Birthday, Anniversary, etc.) that recipients open on mobile.
+Turn photos, messages and memories into an animated page for a birthday, anniversary, farewell or any moment, and share it with a single link.
 
-## 🚀 Live Demo
-- **App**: _[add Vercel URL]_
-- **Demo page**: _[add Vercel URL]_/w/demo
+## Live
 
-## 👥 Team
-| Name | GitHub | Role |
+- **App:** _add Vercel URL_
+- **Demos:** `/w/demo` (Neon Night) · `/w/demo-pastel` (Pastel Dream) · `/w/demo-royal` (Royal Gold)
+
+## Team
+
+| Name | GitHub | Area |
 |---|---|---|
-| Keshav Mittal | @keshavmittal09 | Lead + Backend |
-| _Teammate B_ | @_handle_ | Wizard |
-| _Teammate C_ | @_handle_ | Motion 1 (Neon Night) |
-| _Teammate D_ | @_handle_ | Motion 2 (Templates) |
-| _Teammate E_ | @_handle_ | Media + Dashboard |
+| Keshav Mittal | @keshavmittal09 | Lead, backend, page store, API |
+| Kratika Rathi | @kratikarathi123 | Creation wizard |
+| Khushi Saraswat | @Khushi-saraswat-007 | Wishly design, intro/hero/message sections, Neon Night, viewer |
+| Khush Agnihotri | @Khushagnihotri | Gallery, timeline, finale, Pastel Dream, Royal Gold, templates gallery |
+| Krishna Bansal | @Krishnabansal144 | Wishes wall, share kit, dashboard, landing |
 
-## 🧰 Tech Stack
-- **Framework**: Next.js 16 App Router + TypeScript
-- **Styling**: Tailwind CSS v4
-- **Animations**: Framer Motion + Lenis smooth scroll
-- **Database**: MongoDB Atlas (Mongoose)
-- **Auth**: bcryptjs + JWT (httpOnly cookie)
-- **Storage**: Cloudinary (direct upload, signed)
-- **Forms**: React Hook Form + Zod
-- **Deploy**: Vercel
+## Features
 
-## ✨ Features
-- 6-step wizard to create occasion pages
-- 3 animated templates: Neon Night, Pastel Dream, Royal Gold
-- RevealAt countdown lock + password protection
-- Live phone-frame preview in wizard
-- Cloudinary media upload (15 images, 2 videos)
-- Wishes wall with rate limiting
-- Creator dashboard + page insights
-- Admin panel
-- QR code + WhatsApp share
-- OG image generation
-- Multilingual: English, Hinglish, Hindi
+- **5-step wizard:** occasion → recipient → messages and memories → photos → style, with autosave, live preview and a publish checklist
+- **3 animated templates:** Neon Night, Pastel Dream, Royal Gold
+- **Tap-to-open intro** with confetti and optional background music
+- **Photo gallery** with lightbox (keyboard controls) and a memory-lane timeline
+- **Surprise locks:** timed reveal with a live countdown, or password protection
+- **Wishes wall:** visitors leave their own notes
+- **Sharing:** copy link, WhatsApp, native share and a downloadable QR code
+- **Dashboard:** pages published from this device, with live view and wish counts
+- **Languages:** English, Hinglish and हिंदी
+- **No sign-up:** publishing is anonymous
 
-## 🏃 Local Setup
-\`\`\`bash
+## Tech stack
+
+- Next.js 16 (App Router) + TypeScript
+- Tailwind CSS v4, Framer Motion, lucide-react
+- MongoDB via Mongoose, with a local JSON-file fallback when `MONGO_URI` is not set
+- Zod validation, bcrypt for page passwords, in-memory rate limiting
+- Browser-side image compression (no upload service needed)
+
+## Run locally
+
+```bash
 git clone https://github.com/keshavmittal09/Custom-Occasion-Page-Generator
 cd Custom-Occasion-Page-Generator
 npm install
-cp .env.example .env.local
-# fill in .env.local with your values
 npm run dev
-\`\`\`
+```
 
-## 🔑 Test Credentials
-| Role | Email | Password |
+Open http://localhost:3000. Pages are saved to a local file, so no database is needed for local runs.
+
+## Deploy (Vercel)
+
+1. Import the repo in Vercel. `.npmrc` already sets `legacy-peer-deps` for React 19.
+2. Add the environment variable `MONGO_URI` (a free MongoDB Atlas cluster works). Without it, published pages don't survive between serverless instances. The demo pages still work.
+3. Deploy.
+
+## API
+
+| Method | Route | Purpose |
 |---|---|---|
-| Admin | admin@demo.com | Admin@123 |
-| User | user@demo.com | User@1234 |
+| POST | `/api/v1/publish` | Publish a page from the wizard, returns `{ slug, url }` |
+| GET | `/api/v1/public/pages/:slug` | Fetch a page (handles reveal lock and `x-page-password`) |
+| GET/POST | `/api/v1/public/pages/:slug/wishes` | List or add wishes (rate limited) |
 
-(Run `npm run seed` to create these)
+## Project structure
 
-## 📋 Known Limitations
-- Rate limiter is in-memory (resets on cold start)
-- OG image generation requires Vercel deployment
-
-## 📁 Folder Ownership
-| Folder | Owner |
-|---|---|
-| `lib/`, `models/`, `app/api/v1/` | Lead (Keshav) |
-| `components/wizard/`, `app/create/`, `app/(auth)/` | Teammate B |
-| `templates/neon-night/`, `sections/Intro,Hero,Message,LockScreen` | Teammate C |
-| `templates/pastel-dream/`, `templates/royal-gold/`, `sections/Gallery,Timeline,Finale` | Teammate D |
-| `components/ui/`, `app/dashboard/`, `app/admin/`, `app/(marketing)/` | Teammate E |
+```
+app/            routes: landing, /create, /templates, /dashboard, /w/[slug], API
+components/     wizard steps, navbar, share kit, toasts
+sections/       page sections shared by all templates (intro, hero, gallery…)
+templates/      neon-night, pastel-dream, royal-gold + registry
+lib/            schema, page store, fixtures, helpers
+```
