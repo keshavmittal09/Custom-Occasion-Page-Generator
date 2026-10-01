@@ -3,94 +3,117 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { PageData, TemplateId } from "@/lib/schema";
 import { getTemplate, getTheme } from "@/templates/registry";
-import { riyaFixture } from "@/lib/fixtures/riya";
+
+const shell = "flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0B0420] px-6 text-center text-white";
+
+function Countdown({ to, name, onDone }: { to: string; name?: string; onDone: () => void }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, new Date(to).getTime() - now);
+  useEffect(() => {
+    if (diff === 0) onDone();
+  }, [diff, onDone]);
+
+  const parts = [
+    ["Days", Math.floor(diff / 86_400_000)],
+    ["Hours", Math.floor(diff / 3_600_000) % 24],
+    ["Minutes", Math.floor(diff / 60_000) % 60],
+    ["Seconds", Math.floor(diff / 1000) % 60],
+  ] as const;
+
+  return (
+    <div className={shell}>
+      <div className="text-6xl">🔒</div>
+      <h1 className="text-3xl font-bold">A surprise {name ? `for ${name} ` : ""}is waiting…</h1>
+      <p className="text-white/60">It unlocks in</p>
+      <div className="flex gap-3">
+        {parts.map(([label, v]) => (
+          <div key={label} className="w-20 rounded-2xl border border-pink-400/40 bg-white/5 py-4 shadow-[0_0_25px_rgba(255,79,163,0.25)]">
+            <div className="text-3xl font-bold tabular-nums text-pink-300">{String(v).padStart(2, "0")}</div>
+            <div className="text-xs uppercase tracking-wider text-white/50">{label}</div>
+          </div>
+        ))}
+      </div>
+      <p className="text-sm text-white/40">{new Date(to).toLocaleString()}</p>
+    </div>
+  );
+}
 
 export default function PublicPage() {
-  const params = useParams<{ slug: string }>();
-  const slug = params.slug;
+  const { slug } = useParams<{ slug: string }>();
 
   const [state, setState] = useState<"loading" | "locked" | "password" | "error" | "ready">("loading");
   const [page, setPage] = useState<PageData | null>(null);
-  const [revealAt, setRevealAt] = useState<string | null>(null);
+  const [lock, setLock] = useState<{ revealAt: string; name?: string } | null>(null);
   const [password, setPassword] = useState("");
   const [pwError, setPwError] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const fetchPage = async (pw?: string) => {
-    const headers: Record<string, string> = {};
-    if (pw) headers["x-page-password"] = pw;
-
-    const res = await fetch(`/api/v1/public/pages/${slug}`, { headers });
+    const res = await fetch(`/api/v1/public/pages/${slug}`, { headers: pw ? { "x-page-password": pw } : {} });
     const json = await res.json();
-
     if (!json.success) {
-      setState("error");
-      return;
+      if (json.error?.code === "WRONG_PASSWORD") return setPwError("Wrong password. Try again.");
+      setErrorMsg(json.error?.message || "Page not found");
+      return setState("error");
     }
-
     const data = json.data;
     if (data.locked && data.revealAt) {
-      setRevealAt(data.revealAt);
+      setLock({ revealAt: data.revealAt, name: data.recipientName });
       setState("locked");
     } else if (data.locked && data.passwordRequired) {
       setState("password");
     } else {
       setPage(data.page);
       setState("ready");
+      document.title = `For ${data.page.recipient?.name} 🎉`;
     }
   };
 
-  useEffect(() => { fetchPage(); }, [slug]);
-
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPwError("");
-    const res = await fetch(`/api/v1/public/pages/${slug}`, {
-      headers: { "x-page-password": password },
-    });
-    const json = await res.json();
-    if (!json.success) { setPwError("Wrong password. Try again."); return; }
-    const data = json.data;
-    setPage(data.page);
-    setState("ready");
-  };
+  useEffect(() => {
+    fetchPage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   if (state === "loading") {
     return (
-      <div style={{ background: "#0B0420", color: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>✨</div>
-          <p>Loading your surprise...</p>
-        </div>
+      <div className={shell}>
+        <div className="animate-bounce text-5xl">✨</div>
+        <p className="text-white/70">Loading your surprise…</p>
       </div>
     );
   }
 
-  if (state === "locked" && revealAt) {
-    return (
-      <div style={{ background: "#0B0420", color: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ fontSize: "4rem" }}>🔒</div>
-        <h1 style={{ fontSize: "1.5rem" }}>This page unlocks on</h1>
-        <p style={{ color: "#FF4FA3", fontSize: "1.2rem" }}>{new Date(revealAt).toLocaleString()}</p>
-        <p style={{ opacity: 0.5 }}>Come back then! 🎉</p>
-      </div>
-    );
+  if (state === "locked" && lock) {
+    return <Countdown to={lock.revealAt} name={lock.name} onDone={() => fetchPage()} />;
   }
 
   if (state === "password") {
     return (
-      <div style={{ background: "#0B0420", color: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ fontSize: "4rem" }}>🔐</div>
-        <h1>Password Required</h1>
-        <form onSubmit={handlePasswordSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minWidth: 280 }}>
+      <div className={shell}>
+        <div className="text-6xl">🔐</div>
+        <h1 className="text-2xl font-bold">This surprise is password protected</h1>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPwError("");
+            fetchPage(password);
+          }}
+          className="flex w-full max-w-xs flex-col gap-3"
+        >
           <input
             type="password"
+            autoFocus
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
-            style={{ padding: "0.75rem", borderRadius: 8, border: "1px solid #FF4FA3", background: "transparent", color: "#fff", fontSize: "1rem" }}
+            className="rounded-xl border border-pink-400/60 bg-transparent px-4 py-3 text-white outline-none focus:ring-2 focus:ring-pink-400/40"
           />
-          {pwError && <p style={{ color: "#FF4FA3", fontSize: "0.85rem" }}>{pwError}</p>}
-          <button type="submit" style={{ padding: "0.75rem", borderRadius: 8, background: "#FF4FA3", color: "#fff", border: "none", cursor: "pointer", fontSize: "1rem" }}>
+          {pwError && <p className="text-sm text-pink-300">{pwError}</p>}
+          <button type="submit" className="rounded-xl bg-pink-500 px-4 py-3 font-semibold hover:bg-pink-400">
             Unlock ✨
           </button>
         </form>
@@ -98,21 +121,17 @@ export default function PublicPage() {
     );
   }
 
-  if (state === "error") {
+  if (state === "error" || !page) {
     return (
-      <div style={{ background: "#0B0420", color: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ fontSize: "4rem" }}>💔</div>
-        <h1>Page Not Found</h1>
-        <p style={{ opacity: 0.5 }}>This occasion page doesn't exist.</p>
-        <a href="/" style={{ color: "#FF4FA3", marginTop: "1rem" }}>Create your own surprise →</a>
+      <div className={shell}>
+        <div className="text-6xl">💔</div>
+        <h1 className="text-2xl font-bold">{errorMsg || "Page not found"}</h1>
+        <p className="text-white/50">This occasion page doesn&apos;t exist or is no longer available.</p>
+        <a href="/create" className="mt-2 text-pink-300 hover:text-pink-200">Create your own surprise →</a>
       </div>
     );
   }
 
-  if (!page) return null;
-
   const Template = getTemplate(page.theme.templateId as TemplateId);
-  const theme = getTheme(page);
-
-  return <Template page={page} theme={theme} />;
+  return <Template page={page} theme={getTheme(page)} />;
 }
