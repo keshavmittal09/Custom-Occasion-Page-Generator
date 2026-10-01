@@ -35,13 +35,13 @@ export default function StepOccasion({ draft, update }: StepProps) {
               whileTap={{ scale: 0.97 }}
               onClick={() => update({ occasion: o.id })}
               className={`relative overflow-hidden rounded-2xl border p-4 text-left transition ${
-                active ? "border-pink-400/80 bg-gradient-to-br from-pink-500/25 to-violet-500/20 shadow-lg shadow-pink-500/20" : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                active ? "border-lilac bg-gradient-to-br from-[#ffd9e8] to-[#e3d9ff] shadow-lg shadow-[#8b7cf6]/30" : "border-ink/10 bg-white/70 hover:border-ink/20"
               }`}
             >
               <div className="text-3xl">{o.emoji}</div>
-              <div className="mt-2 font-semibold text-white">{o.label}</div>
-              <div className="text-xs text-white/50">{o.desc}</div>
-              {active && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-pink-500 text-[10px] text-white">✓</span>}
+              <div className="mt-2 font-semibold text-ink">{o.label}</div>
+              <div className="text-xs text-ink/50">{o.desc}</div>
+              {active && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-ink text-[10px] text-white">✓</span>}
             </motion.button>
           );
         })}
@@ -65,7 +65,7 @@ export default function StepOccasion({ draft, update }: StepProps) {
                 type="button"
                 onClick={() => update({ language: l.id })}
                 className={`rounded-2xl border px-2 py-2.5 text-center transition ${
-                  draft.language === l.id ? "border-pink-400 bg-pink-500/20 text-white" : "border-white/10 bg-white/[0.03] text-white/60 hover:text-white"
+                  draft.language === l.id ? "border-lilac bg-[#efe9ff] text-ink" : "border-ink/10 bg-white/70 text-ink/60 hover:text-ink"
                 }`}
               >
                 <div className="text-sm font-semibold">{l.label}</div>

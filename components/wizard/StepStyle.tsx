@@ -20,13 +20,13 @@ export default function StepStyle({ draft, update }: StepProps) {
             type="button"
             onClick={() => update({ templateId: t.id })}
             className={`overflow-hidden rounded-2xl border text-left transition hover:scale-[1.02] ${
-              draft.templateId === t.id ? "border-pink-400 ring-2 ring-pink-400/40" : "border-white/10"
+              draft.templateId === t.id ? "border-lilac ring-2 ring-lilac/40" : "border-ink/10"
             }`}
           >
             <div className="h-24" style={{ background: t.bg }} />
-            <div className="bg-white/5 p-3">
-              <div className="font-semibold text-white">{t.name}</div>
-              <div className="text-xs text-white/60">{t.desc}</div>
+            <div className="bg-white/70 p-3">
+              <div className="font-semibold text-ink">{t.name}</div>
+              <div className="text-xs text-ink/60">{t.desc}</div>
             </div>
           </button>
         ))}
@@ -40,7 +40,7 @@ export default function StepStyle({ draft, update }: StepProps) {
               <button key={c} type="button" aria-label={`Accent ${c}`} onClick={() => update({ accent: c })} className={`h-12 w-9 rounded-lg ring-2 transition hover:scale-110 ${draft.accent === c ? "ring-white" : "ring-transparent"}`} style={{ background: c }} />
             ))}
             {draft.accent && (
-              <button type="button" onClick={() => update({ accent: "" })} className="rounded-xl border border-white/15 px-3 text-sm text-white/70 hover:bg-white/10">
+              <button type="button" onClick={() => update({ accent: "" })} className="rounded-xl border border-ink/15 px-3 text-sm text-ink/70 hover:bg-white">
                 Reset
               </button>
             )}
@@ -57,7 +57,7 @@ export default function StepStyle({ draft, update }: StepProps) {
         </Field>
       </div>
 
-      <label className="flex items-center gap-3 text-white/80">
+      <label className="flex items-center gap-3 text-ink/80">
         <input type="checkbox" className="h-5 w-5 accent-pink-500" checked={draft.wishesWall} onChange={(e) => update({ wishesWall: e.target.checked })} />
         Let visitors leave wishes on the page
       </label>

@@ -42,10 +42,10 @@ export default function StepRecipient({ draft, update }: StepProps) {
       </div>
 
       {r.name && (
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-pink-500/10 to-violet-500/10 p-4 text-sm text-white/70">
-          Preview: <span className="font-semibold text-white">“{r.nickname || r.name}”</span>
+        <div className="rounded-2xl border border-ink/10 bg-gradient-to-r from-[#ffe3cf]/60 to-[#e3d9ff]/60 p-4 text-sm text-ink/70">
+          Preview: <span className="font-semibold text-ink">“{r.nickname || r.name}”</span>
           {r.relation && <> · your {r.relation.toLowerCase()}</>}
-          {draft.from && <> · from <span className="text-white">{draft.from}</span></>}
+          {draft.from && <> · from <span className="text-ink">{draft.from}</span></>}
         </div>
       )}
     </div>
