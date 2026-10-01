@@ -35,12 +35,12 @@ export default function ShareKit({ url, text = "I made something special for you
   };
 
   const btn = `inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition active:scale-95 ${
-    dark ? "bg-white/[0.07] text-white ring-1 ring-white/15 hover:bg-white/15" : "bg-white text-gray-800 shadow-md ring-1 ring-black/5 hover:shadow-lg"
+    dark ? "bg-white/[0.07] text-white ring-1 ring-white/15 hover:bg-white/15" : "bg-white/80 text-ink ring-1 ring-ink/10 backdrop-blur hover:bg-white"
   }`;
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className={`text-xs uppercase tracking-[0.3em] ${dark ? "text-white/40" : "text-gray-500"}`}>Share the love</p>
+      <p className={`text-xs uppercase tracking-[0.3em] ${dark ? "text-white/40" : "text-muted"}`}>Share the love</p>
       <div className="flex flex-wrap justify-center gap-2">
         <button onClick={copy} className={btn}>🔗 Copy link</button>
         <a href={`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`} target="_blank" rel="noreferrer" className={`${btn} !bg-[#25D366] !text-white !ring-0 hover:!bg-[#1ebe5b]`}>

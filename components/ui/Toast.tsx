@@ -32,7 +32,7 @@ export default function Toaster() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black shadow-2xl shadow-black/40"
+            className="rounded-full bg-ink px-5 py-3 text-sm font-medium text-white shadow-[0_20px_40px_-12px_rgba(30,27,58,0.6)]"
           >
             {x.msg}
           </motion.div>
