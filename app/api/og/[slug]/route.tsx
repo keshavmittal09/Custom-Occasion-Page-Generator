@@ -30,6 +30,6 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ slug: strin
         </div>
       </div>
     ),
-    { width: 1200, height: 630, emoji: "twemoji" }
+    { width: 1200, height: 630, emoji: "twemoji", headers: { "Cache-Control": "public, max-age=600, s-maxage=3600, stale-while-revalidate=86400" } }
   );
 }
