@@ -9,6 +9,8 @@ import StepPhotos from "@/components/wizard/StepPhotos";
 import StepStyle from "@/components/wizard/StepStyle";
 import { getTemplate, getTheme } from "@/templates/registry";
 import { addMyPage } from "@/lib/myPages";
+import SummaryCard from "@/components/wizard/SummaryCard";
+import { AnimatePresence, motion } from "framer-motion";
 
 const STEPS = [
   { label: "Occasion", Comp: StepOccasion },
