@@ -1,64 +1,24 @@
 "use client";
 import { useMemo } from "react";
-import { motion } from "framer-motion";
-import { TemplateProps } from "@/templates/registry";
-import { fontStack } from "@/sections/types";
-import Intro from "@/sections/Intro";
-import Hero from "@/sections/Hero";
-import Message from "@/sections/Message";
-import Gallery from "@/sections/Gallery";
-import Timeline from "@/sections/Timeline";
-import WishesWall from "@/sections/WishesWall";
-import Finale from "@/sections/Finale";
-import ShareKit from "@/components/ui/ShareKit";
-import ScrollProgress from "@/sections/ScrollProgress";
-import Divider from "@/sections/Divider";
+import type { TemplateProps } from "@/templates/registry";
+import type { SectionProps } from "@/sections/types";
+import Shell from "@/templates/Shell";
 
-// Neon Night — dark sky, twinkling stars, glowing accents
-function Stars({ color }: { color: string }) {
-  const stars = useMemo(
-    () => Array.from({ length: 60 }, () => ({ x: Math.random() * 100, y: Math.random() * 100, s: Math.random() * 2 + 1, d: Math.random() * 3 + 2 })),
-    []
-  );
+// Neon Night — starfield, perspective grid and neon glow
+function Decor({ theme }: SectionProps) {
+  const stars = useMemo(() => Array.from({ length: 50 }, () => ({ x: Math.random() * 100, y: Math.random() * 100, s: Math.random() * 2 + 1, d: 2 + Math.random() * 3, delay: Math.random() * 3 })), []);
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
+      <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
       {stars.map((st, i) => (
-        <motion.span
-          key={i}
-          className="absolute rounded-full bg-white"
-          style={{ left: `${st.x}%`, top: `${st.y}%`, width: st.s, height: st.s }}
-          animate={{ opacity: [0.2, 1, 0.2] }}
-          transition={{ repeat: Infinity, duration: st.d, delay: i * 0.05 }}
-        />
+        <span key={i} className="anim-twinkle absolute rounded-full bg-white" style={{ left: `${st.x}%`, top: `${st.y}%`, width: st.s, height: st.s, ["--d" as string]: `${st.d}s`, ["--delay" as string]: `${st.delay}s` }} />
       ))}
-      <div className="absolute -left-40 top-1/4 h-96 w-96 rounded-full blur-[120px]" style={{ background: `${color}40` }} />
-      <div className="absolute -right-40 bottom-1/4 h-96 w-96 rounded-full bg-cyan-400/20 blur-[120px]" />
+      <div className="absolute -left-40 top-1/4 h-96 w-96 rounded-full blur-[120px]" style={{ background: `${theme.accent}40` }} />
+      <div className="absolute -right-40 bottom-1/4 h-96 w-96 rounded-full blur-[120px]" style={{ background: `${theme.secondary}33` }} />
     </div>
   );
 }
 
-export default function NeonNight({ page, theme }: TemplateProps) {
-  const props = { page, theme, variant: "neon" as const };
-  const DIVIDER = theme.accent;
-  return (
-    <div className="relative min-h-screen overflow-x-hidden" style={{ background: theme.background, color: theme.text, fontFamily: fontStack(theme) }}>
-      <ScrollProgress color={theme.accent} color2={theme.secondary} />
-      <div className="bg-grid pointer-events-none fixed inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-      <Stars color={theme.accent} />
-      <Intro {...props} />
-      <main className="relative">
-        <Hero {...props} />
-        <Message {...props} />
-        <Gallery {...props} />
-        <Timeline {...props} />
-        <WishesWall {...props} />
-        <Finale {...props} />
-        {page.slug && (
-          <footer className="pb-16">
-            <ShareKit url={`${window.location.origin}/w/${page.slug}`} />
-          </footer>
-        )}
-      </main>
-    </div>
-  );
+export default function NeonNight(props: TemplateProps) {
+  return <Shell {...props} variant="neon" background={props.theme.background} Decor={Decor} />;
 }
