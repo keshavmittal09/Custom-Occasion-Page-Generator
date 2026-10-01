@@ -2,7 +2,7 @@
 import { StepProps } from "./draft";
 import { Chip, Field, StepTitle, inputCls } from "./ui";
 
-const RELATIONS = ["Best Friend", "Partner", "Mom", "Dad", "Sister", "Brother", "Colleague", "Teacher"];
+const RELATIONS = ["Best Friend", "Partner", "Mom", "Dad", "Sister", "Brother", "Cousin", "Grandma", "Colleague", "Teacher", "Bestie 💅"];
 
 export default function StepRecipient({ draft, update }: StepProps) {
   const r = draft.recipient;
@@ -16,7 +16,7 @@ export default function StepRecipient({ draft, update }: StepProps) {
         <Field label="Their name *" count={r.name.length} max={40}>
           <input className={inputCls} maxLength={40} placeholder="Riya" value={r.name} onChange={(e) => setR({ name: e.target.value })} autoFocus />
         </Field>
-        <Field label="Nickname" hint="Optional, shown on the intro screen">
+        <Field label="Nickname" hint="Optional — shown on the intro. Names in हिंदी work too.">
           <input className={inputCls} maxLength={40} placeholder="Riyu" value={r.nickname} onChange={(e) => setR({ nickname: e.target.value })} />
         </Field>
       </div>
