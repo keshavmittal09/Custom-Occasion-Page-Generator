@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { addWish, getPage, listWishes } from "@/lib/store";
+import { demoPages } from "@/lib/fixtures/demos";
 import { successResponse, errorResponse, withErrorHandler, rateLimit, getClientIp } from "@/lib/api";
 
 type Ctx = { params: Promise<{ slug: string }> };
@@ -12,7 +13,7 @@ const WishSchema = z.object({
 });
 
 async function pageExists(slug: string) {
-  if (slug === "demo") return true;
+  if (slug in demoPages) return true;
   const page = (await getPage(slug)) as any;
   return !!page && page.settings?.wishesWall !== false;
 }

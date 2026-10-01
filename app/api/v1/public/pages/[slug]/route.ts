@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { getPage, incrementViews } from "@/lib/store";
+import { demoPages } from "@/lib/fixtures/demos";
 import { successResponse, errorResponse, withErrorHandler } from "@/lib/api";
 
 type Ctx = { params: Promise<{ slug: string }> };
@@ -10,9 +11,8 @@ export const GET = withErrorHandler(async (req: NextRequest, ctx: Ctx) => {
   const { slug } = await ctx.params;
 
   // Demo fixture — works without any database
-  if (slug === "demo") {
-    const { riyaFixture } = await import("@/lib/fixtures/riya");
-    return successResponse({ page: { ...riyaFixture, slug: "demo" }, locked: false });
+  if (slug in demoPages) {
+    return successResponse({ page: { ...demoPages[slug], slug }, locked: false });
   }
 
   const page = (await getPage(slug)) as any;
