@@ -43,54 +43,59 @@ export default function StepMessages({ draft, update }: StepProps) {
     update({ memories: draft.memories.map((m, j) => (j === i ? { ...m, ...patch } : m)) });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
-        <StepTitle title="Write from the heart" subtitle="Up to 5 messages — they'll appear one by one." />
-        <div className="space-y-3">
+        <StepTitle emoji="💌" title="Write from the heart" subtitle="Up to 5 messages. They'll animate in one by one." />
+        <div className="space-y-4">
           {draft.messages.map((m, i) => (
-            <div key={i} className="flex gap-2">
-              <textarea className={`${inputCls} min-h-24`} maxLength={600} placeholder={`Message ${i + 1}`} value={m} onChange={(e) => setMsg(i, e.target.value)} />
+            <div key={i} className="group relative">
+              <div className="mb-1.5 flex items-center justify-between text-xs">
+                <span className="font-medium text-white/50">Message {i + 1}</span>
+                <span className={`tabular-nums ${m.length > 540 ? "text-pink-300" : "text-white/30"}`}>{m.length}/600</span>
+              </div>
+              <textarea className={`${inputCls} min-h-28 resize-y leading-relaxed`} maxLength={600} placeholder={i === 0 ? "Happy birthday! You make every day brighter…" : "Another little note…"} value={m} onChange={(e) => setMsg(i, e.target.value)} />
               {draft.messages.length > 1 && (
-                <button type="button" onClick={() => update({ messages: draft.messages.filter((_, j) => j !== i) })} className="self-start rounded-lg px-3 py-2 text-white/50 hover:bg-white/10 hover:text-white">
+                <button type="button" aria-label="Remove message" onClick={() => update({ messages: draft.messages.filter((_, j) => j !== i) })} className="absolute right-2 top-8 grid h-7 w-7 place-items-center rounded-full bg-white/10 text-xs text-white/60 opacity-0 transition hover:bg-red-500/30 hover:text-white group-hover:opacity-100">
                   ✕
                 </button>
               )}
             </div>
           ))}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button type="button" onClick={suggest} className="rounded-full bg-gradient-to-r from-pink-500 to-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/25 transition hover:brightness-110">
+            ✨ Suggest a message
+          </button>
           {draft.messages.length < 5 && (
-            <button type="button" onClick={() => update({ messages: [...draft.messages, ""] })} className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/10">
+            <button type="button" onClick={() => update({ messages: [...draft.messages, ""] })} className="rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/80 transition hover:bg-white/10">
               + Add message
             </button>
           )}
-          <button type="button" onClick={suggest} className="rounded-xl bg-gradient-to-r from-pink-500 to-violet-500 px-4 py-2 text-sm font-medium text-white">
-            ✨ Suggest a message
-          </button>
         </div>
       </div>
 
-      <div>
-        <StepTitle title="Memory lane" subtitle="Optional — shared moments shown as a timeline (max 8)." />
+      <div className="border-t border-white/10 pt-8">
+        <StepTitle emoji="🗓️" title="Memory lane" subtitle="Optional. Shared moments shown as a timeline (max 8)." />
         <div className="space-y-4">
           {draft.memories.map((mem, i) => (
-            <div key={i} className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <div className="grid gap-3 sm:grid-cols-[1fr_180px_auto]">
+            <div key={i} className="relative space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 pl-14">
+              <span className="absolute left-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-pink-500 to-violet-500 text-xs font-bold text-white">{i + 1}</span>
+              <div className="grid gap-3 sm:grid-cols-[1fr_170px_auto]">
                 <input className={inputCls} maxLength={80} placeholder="Goa trip 2023" value={mem.title} onChange={(e) => setMem(i, { title: e.target.value })} />
                 <input type="date" className={inputCls} value={mem.date ?? ""} onChange={(e) => setMem(i, { date: e.target.value })} />
-                <button type="button" onClick={() => update({ memories: draft.memories.filter((_, j) => j !== i) })} className="rounded-lg px-3 text-white/50 hover:bg-white/10 hover:text-white">
+                <button type="button" aria-label="Remove memory" onClick={() => update({ memories: draft.memories.filter((_, j) => j !== i) })} className="rounded-xl px-3 py-2 text-white/40 transition hover:bg-red-500/20 hover:text-white">
                   ✕
                 </button>
               </div>
-              <Field label="What happened?">
+              <Field label="What happened?" count={(mem.description ?? "").length} max={300}>
                 <input className={inputCls} maxLength={300} placeholder="That beach night we'll never forget 🌊" value={mem.description ?? ""} onChange={(e) => setMem(i, { description: e.target.value })} />
               </Field>
             </div>
           ))}
         </div>
         {draft.memories.length < 8 && (
-          <button type="button" onClick={() => update({ memories: [...draft.memories, { title: "", date: "", description: "" }] })} className="mt-3 rounded-xl border border-white/15 px-4 py-2 text-sm text-white/80 hover:bg-white/10">
-            + Add memory
+          <button type="button" onClick={() => update({ memories: [...draft.memories, { title: "", date: "", description: "" }] })} className="mt-4 w-full rounded-2xl border border-dashed border-white/15 py-4 text-sm text-white/60 transition hover:border-pink-400/50 hover:bg-white/[0.03] hover:text-white">
+            + Add a memory
           </button>
         )}
       </div>
