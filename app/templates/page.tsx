@@ -5,28 +5,14 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Eye, Play, Sparkles, X } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
+import { CATALOG, fontsHref, type CatalogEntry } from "@/templates/catalog";
 
-type T = {
-  id: "neon-night" | "pastel-dream" | "royal-gold";
-  demo: string;
-  name: string;
-  note: string;
-  occasions: string[];
-  gradient: string;
-  palette: [string, string, string];
-  motion: string;
-  font: string;
-  emoji: string;
-  dark?: boolean;
-};
+type T = CatalogEntry & { occasionLabels: string[] };
 
-// The three templates that actually ship, each backed by a live demo page
-const templates: T[] = [
-  { id: "neon-night", demo: "demo", name: "Neon Night", note: "Starfield, glow and party energy", occasions: ["Birthday", "Friendship", "Congrats"], gradient: "from-[#1b1250] via-[#4a2fb0] to-[#e85fa8]", palette: ["#ffd1ec", "#a78bfa", "#22d3ee"], motion: "Twinkling stars", font: "Space Grotesk", emoji: "🎁", dark: true },
-  { id: "pastel-dream", demo: "demo-pastel", name: "Pastel Dream", note: "Balloons, polaroids and soft pinks", occasions: ["Birthday", "Anniversary", "Friendship"], gradient: "from-[#fde2f0] via-[#e8dcff] to-[#cfe3ff]", palette: ["#fff0f7", "#d9ccff", "#bcd8ff"], motion: "Floating balloons", font: "Fredoka", emoji: "🎀" },
-  { id: "royal-gold", demo: "demo-royal", name: "Royal Gold", note: "Black velvet, gold petals, serif", occasions: ["Wedding", "Anniversary", "Farewell"], gradient: "from-[#1a140a] via-[#5a4318] to-[#e8c27a]", palette: ["#f6e3b4", "#c99a3c", "#6b4a14"], motion: "Falling gold petals", font: "Playfair Display", emoji: "👑", dark: true },
-];
-const filters = ["All", "Birthday", "Anniversary", "Wedding", "Farewell", "Friendship", "Congrats"];
+const title = (o: string) => o.charAt(0) + o.slice(1).toLowerCase();
+// Every template that ships, each backed by a full-screen demo page with sample data
+const templates: T[] = CATALOG.map((t) => ({ ...t, occasionLabels: t.occasions.map(title) }));
+const filters = ["All", "Gen Z", "Aesthetic", "Classic", "Birthday", "Anniversary", "Wedding", "Farewell", "Friendship", "Congrats"];
 
 function MiniPage({ t, big = false }: { t: T; big?: boolean }) {
   return (
@@ -96,7 +82,7 @@ export default function TemplatesPage() {
   const router = useRouter();
   const [filter, setFilter] = useState("All");
   const [open, setOpen] = useState<T | null>(null);
-  const shown = templates.filter((t) => filter === "All" || t.occasions.includes(filter));
+  const shown = templates.filter((t) => filter === "All" || t.vibe === filter || t.occasionLabels.includes(filter));
 
   // Pre-select the template in the saved wizard draft, then jump into the wizard
   const use = (t: T) => {
@@ -110,12 +96,13 @@ export default function TemplatesPage() {
   return (
     <MotionConfig reducedMotion="user">
       <main className="relative min-h-screen bg-cream text-ink">
+        <link rel="stylesheet" href={fontsHref(CATALOG.map((t) => t.font))} precedence="default" />
         <div className="bg-aurora pointer-events-none fixed inset-0" />
         <Navbar />
 
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-36 sm:px-6">
           <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-ink/80">
-            <Sparkles size={14} className="text-lilac" /> Three styles, each with its own motion
+            <Sparkles size={14} className="text-lilac" /> {CATALOG.length} styles, each with its own motion
           </motion.p>
           <h1 className="font-display mt-6 max-w-3xl text-5xl leading-[1.05] sm:text-7xl">
             Pick the mood, <span className="text-shine italic">we&apos;ll do the magic.</span>
@@ -150,7 +137,7 @@ export default function TemplatesPage() {
                   <dl className="mt-6 space-y-3 text-sm">
                     <div className="flex justify-between border-b border-ink/5 pb-3"><dt className="text-muted">Motion</dt><dd>{open.motion}</dd></div>
                     <div className="flex justify-between border-b border-ink/5 pb-3"><dt className="text-muted">Typeface</dt><dd>{open.font}</dd></div>
-                    <div className="flex justify-between"><dt className="text-muted">Great for</dt><dd>{open.occasions.join(", ")}</dd></div>
+                    <div className="flex justify-between"><dt className="text-muted">Great for</dt><dd className="text-right">{open.occasionLabels.join(", ")}</dd></div>
                   </dl>
                   <div className="mt-auto flex flex-col gap-3 pt-8">
                     <button onClick={() => use(open)} className="btn-ink group inline-flex items-center justify-center gap-2 py-3.5">
