@@ -1,65 +1,23 @@
 "use client";
 import { useMemo } from "react";
-import { motion } from "framer-motion";
-import { TemplateProps } from "@/templates/registry";
-import { fontStack } from "@/sections/types";
-import Intro from "@/sections/Intro";
-import Hero from "@/sections/Hero";
-import Message from "@/sections/Message";
-import Gallery from "@/sections/Gallery";
-import Timeline from "@/sections/Timeline";
-import WishesWall from "@/sections/WishesWall";
-import Finale from "@/sections/Finale";
-import ShareKit from "@/components/ui/ShareKit";
-import ScrollProgress from "@/sections/ScrollProgress";
-import Divider from "@/sections/Divider";
+import type { TemplateProps } from "@/templates/registry";
+import type { SectionProps } from "@/sections/types";
+import Shell from "@/templates/Shell";
 
-// Royal Gold — black velvet, falling gold petals, framed borders
-function Petals({ gold }: { gold: string }) {
-  const petals = useMemo(
-    () => Array.from({ length: 18 }, () => ({ x: Math.random() * 100, d: 10 + Math.random() * 10, delay: Math.random() * 10, r: Math.random() * 360 })),
-    []
-  );
+// Royal Gold — falling gold & rose petals, framed border, gold foil shimmer
+function Decor({ theme }: SectionProps) {
+  const petals = useMemo(() => Array.from({ length: 16 }, () => ({ x: Math.random() * 100, d: 10 + Math.random() * 10, delay: -Math.random() * 20, s: 6 + Math.random() * 6 })), []);
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
       {petals.map((p, i) => (
-        <motion.span
-          key={i}
-          className="absolute h-3 w-2 rounded-full"
-          style={{ left: `${p.x}%`, top: -20, background: gold, opacity: 0.6 }}
-          animate={{ y: [0, 1200], rotate: [p.r, p.r + 360], x: [0, 40, -20] }}
-          transition={{ repeat: Infinity, duration: p.d, delay: p.delay, ease: "linear" }}
-        />
+        <span key={i} className="anim-fall absolute top-0 rounded-[60%_0]" style={{ left: `${p.x}%`, width: p.s, height: p.s * 1.4, background: i % 4 === 0 ? "#7F1D1D" : theme.secondary, opacity: 0.6, ["--d" as string]: `${p.d}s`, ["--delay" as string]: `${p.delay}s` }} />
       ))}
-      <div className="absolute inset-3 border sm:inset-6" style={{ borderColor: `${gold}44` }} />
+      <div className="absolute inset-3 border sm:inset-6" style={{ borderColor: `${theme.secondary}44` }} />
+      <div className="anim-holo absolute inset-x-0 top-0 h-1" style={{ backgroundImage: `linear-gradient(90deg, transparent, ${theme.secondary}, #fff3c4, ${theme.secondary}, transparent)` }} />
     </div>
   );
 }
 
-export default function RoyalGold({ page, theme }: TemplateProps) {
-  const props = { page, theme, variant: "royal" as const };
-  const DIVIDER = theme.secondary;
-  return (
-    <div
-      className="relative min-h-screen overflow-x-hidden"
-      style={{ background: `radial-gradient(ellipse at top, #2a2210, ${theme.background} 60%)`, color: theme.text, fontFamily: fontStack(theme) }}
-    >
-      <ScrollProgress color={theme.secondary} color2="#fff3c4" />
-      <Petals gold={theme.secondary} />
-      <Intro {...props} />
-      <main className="relative">
-        <Hero {...props} />
-        <Message {...props} />
-        <Gallery {...props} />
-        <Timeline {...props} />
-        <WishesWall {...props} />
-        <Finale {...props} />
-        {page.slug && (
-          <footer className="pb-16">
-            <ShareKit url={`${window.location.origin}/w/${page.slug}`} />
-          </footer>
-        )}
-      </main>
-    </div>
-  );
+export default function RoyalGold(props: TemplateProps) {
+  return <Shell {...props} variant="royal" background={`radial-gradient(ellipse at top, #2a2210, ${props.theme.background} 60%)`} Decor={Decor} />;
 }
