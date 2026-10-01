@@ -1,31 +1,27 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { signToken, setAuthCookie } from "@/lib/auth";
 import { successResponse, errorResponse, withErrorHandler, rateLimit, getClientIp } from "@/lib/api";
-import { z } from "zod";
 
 const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().trim().toLowerCase().email("Enter a valid email"),
+  password: z.string().min(1, "Enter your password"),
 });
 
+// POST /api/v1/auth/login
 export const POST = withErrorHandler(async (req: NextRequest) => {
-  const ip = getClientIp(req);
-  const { ok } = rateLimit(ip + ":login", 10, 60_000);
-  if (!ok) return errorResponse("RATE_LIMITED", "Too many requests", 429);
+  const { ok } = rateLimit(getClientIp(req) + ":login", 10, 60_000);
+  if (!ok) return errorResponse("RATE_LIMITED", "Too many attempts. Try again in a minute.", 429);
 
-  await connectDB();
   const body = LoginSchema.parse(await req.json());
-  const user = await User.findOne({ email: body.email });
-  if (!user || !user.isActive) return errorResponse("INVALID_CREDENTIALS", "Invalid email or password", 401);
+  await connectDB();
+  const user = (await User.findOne({ email: body.email })) as any;
+  if (!user || !(await bcrypt.compare(body.password, user.passwordHash))) return errorResponse("INVALID_CREDENTIALS", "Wrong email or password", 401);
+  if (!user.isActive) return errorResponse("ACCOUNT_DISABLED", "This account has been disabled", 403);
 
-  const valid = await bcrypt.compare(body.password, user.passwordHash);
-  if (!valid) return errorResponse("INVALID_CREDENTIALS", "Invalid email or password", 401);
-
-  const token = signToken({ userId: user._id.toString(), email: user.email, role: user.role });
-  await setAuthCookie(token);
-
-  return successResponse({ id: user._id, name: user.name, email: user.email, role: user.role }, "Login successful");
+  await setAuthCookie(signToken({ userId: String(user._id), email: user.email, role: user.role, name: user.name }));
+  return successResponse({ id: String(user._id), name: user.name, email: user.email, role: user.role }, "Welcome back!");
 });

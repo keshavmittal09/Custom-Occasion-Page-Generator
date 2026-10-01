@@ -1,35 +1,28 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { signToken, setAuthCookie } from "@/lib/auth";
 import { successResponse, errorResponse, withErrorHandler, rateLimit, getClientIp } from "@/lib/api";
-import { z } from "zod";
+import { sanitize } from "@/lib/sanitize";
 
 const SignupSchema = z.object({
-  name: z.string().min(2).max(50),
-  email: z.string().email(),
-  password: z.string().min(8).max(72),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(50),
+  email: z.string().trim().toLowerCase().email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
 });
 
+// POST /api/v1/auth/signup (alias: /auth/register)
 export const POST = withErrorHandler(async (req: NextRequest) => {
-  const ip = getClientIp(req);
-  const { ok } = rateLimit(ip + ":signup", 5, 60_000);
-  if (!ok) return errorResponse("RATE_LIMITED", "Too many requests", 429);
+  const { ok } = rateLimit(getClientIp(req) + ":signup", 5, 60_000);
+  if (!ok) return errorResponse("RATE_LIMITED", "Too many attempts. Try again in a minute.", 429);
 
-  await connectDB();
   const body = SignupSchema.parse(await req.json());
-  const exists = await User.findOne({ email: body.email });
-  if (exists) return errorResponse("EMAIL_TAKEN", "Email already registered", 409);
+  await connectDB();
+  if (await User.exists({ email: body.email })) return errorResponse("EMAIL_TAKEN", "That email is already registered. Log in instead?", 409);
 
-  const passwordHash = await bcrypt.hash(body.password, 12);
-  const user = await User.create({ name: body.name, email: body.email, passwordHash });
-  const token = signToken({ userId: user._id.toString(), email: user.email, role: user.role });
-  await setAuthCookie(token);
-
-  return successResponse(
-    { id: user._id, name: user.name, email: user.email, role: user.role },
-    "Account created",
-    201
-  );
+  const user = await User.create({ name: sanitize(body.name), email: body.email, passwordHash: await bcrypt.hash(body.password, 12) });
+  await setAuthCookie(signToken({ userId: String(user._id), email: user.email, role: user.role, name: user.name }));
+  return successResponse({ id: String(user._id), name: user.name, email: user.email, role: user.role }, "Account created", 201);
 });
