@@ -12,7 +12,7 @@ const TEMPLATES: { id: TemplateId; name: string; desc: string; bg: string }[] = 
 export default function StepStyle({ draft, update }: StepProps) {
   return (
     <div className="space-y-6">
-      <StepTitle title="Pick a vibe" subtitle="Choose a template, then fine-tune." />
+      <StepTitle emoji="🎨" title="Pick a vibe" subtitle="Choose a template, then fine-tune the details." />
       <div className="grid gap-3 sm:grid-cols-3">
         {TEMPLATES.map((t) => (
           <button
@@ -35,7 +35,10 @@ export default function StepStyle({ draft, update }: StepProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Accent colour" hint="Leave as-is to use the template default">
           <div className="flex gap-2">
-            <input type="color" className="h-12 w-16 cursor-pointer rounded-lg bg-transparent" value={draft.accent || "#ff4fa3"} onChange={(e) => update({ accent: e.target.value })} />
+            <input type="color" className="h-12 w-12 cursor-pointer rounded-lg bg-transparent" value={draft.accent || "#ff4fa3"} onChange={(e) => update({ accent: e.target.value })} />
+            {["#FF4FA3", "#A78BFA", "#22D3EE", "#F59E0B", "#34D399"].map((c) => (
+              <button key={c} type="button" aria-label={`Accent ${c}`} onClick={() => update({ accent: c })} className={`h-12 w-9 rounded-lg ring-2 transition hover:scale-110 ${draft.accent === c ? "ring-white" : "ring-transparent"}`} style={{ background: c }} />
+            ))}
             {draft.accent && (
               <button type="button" onClick={() => update({ accent: "" })} className="rounded-xl border border-white/15 px-3 text-sm text-white/70 hover:bg-white/10">
                 Reset
