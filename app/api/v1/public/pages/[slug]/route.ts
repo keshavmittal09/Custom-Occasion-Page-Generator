@@ -1,46 +1,32 @@
 import { NextRequest } from "next/server";
-import bcrypt from "bcryptjs";
-import { getPage, incrementViews } from "@/lib/store";
-import { demoPages } from "@/lib/fixtures/demos";
+import { connectDB } from "@/lib/db";
+import { Page } from "@/models/Page";
+import { verifyViewToken } from "@/lib/auth";
 import { successResponse, errorResponse, withErrorHandler } from "@/lib/api";
+import { demoPages } from "@/lib/fixtures/demos";
+import { isLocked, toPageData } from "@/lib/pages";
 
 type Ctx = { params: Promise<{ slug: string }> };
 
-// GET /api/v1/public/pages/:slug
+// GET /api/v1/public/pages/:slug — page data for rendering.
+// Scheduled pages return only { locked, revealAt, recipient first name } — content never leaks early.
+// Password pages need the short-lived token from POST /unlock (header x-view-token).
 export const GET = withErrorHandler(async (req: NextRequest, ctx: Ctx) => {
   const { slug } = await ctx.params;
 
-  // Demo fixture — works without any database
-  if (slug in demoPages) {
-    return successResponse({ page: { ...demoPages[slug], slug }, locked: false });
-  }
+  if (slug in demoPages) return successResponse({ locked: false, page: { ...demoPages[slug], slug } });
 
-  const page = (await getPage(slug)) as any;
-  if (!page) return errorResponse("NOT_FOUND", "Page not found", 404);
+  await connectDB();
+  const page = (await Page.findOne({ slug }).lean()) as any;
+  if (!page || !["PUBLISHED", "SCHEDULED", "DISABLED"].includes(page.status)) return errorResponse("NOT_FOUND", "Page not found", 404);
   if (page.status === "DISABLED") return errorResponse("DISABLED", "This page is unavailable", 403);
 
-  // Scheduled reveal lock
-  if (page.revealAt && new Date(page.revealAt) > new Date()) {
-    return successResponse({ locked: true, revealAt: page.revealAt, recipientName: page.recipient?.name });
+  const firstName = (page.recipient?.name || "").split(" ")[0];
+  if (isLocked(page)) return successResponse({ locked: true, revealAt: new Date(page.revealAt).toISOString(), recipientName: firstName });
+
+  if (page.settings?.passwordHash && !verifyViewToken(req.headers.get("x-view-token"), slug)) {
+    return successResponse({ locked: true, passwordRequired: true, recipientName: firstName });
   }
 
-  // Password lock
-  if (page.settings?.passwordHash) {
-    const pw = req.headers.get("x-page-password");
-    if (!pw) return successResponse({ locked: true, passwordRequired: true });
-    const valid = await bcrypt.compare(pw, page.settings.passwordHash);
-    if (!valid) return errorResponse("WRONG_PASSWORD", "Incorrect password", 401);
-  }
-
-  // ?peek=1 is used by the dashboard to read stats without counting a view
-  if (!req.nextUrl.searchParams.has("peek")) await incrementViews(slug);
-
-  // Never leak the password hash or internal ids
-  const { settings, _id, __v, ownerId, ...rest } = page;
-  const safePage = {
-    ...rest,
-    settings: { wishesWall: settings?.wishesWall ?? true, showViews: settings?.showViews ?? true },
-  };
-
-  return successResponse({ page: safePage, locked: false });
+  return successResponse({ locked: false, page: toPageData(page) });
 });
